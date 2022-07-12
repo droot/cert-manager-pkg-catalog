@@ -9,14 +9,14 @@ upstream:
   git:
     repo: git@github.com:droot/cert-manager-pkg-catalog
     directory: /cert-manager-basic
-    ref: v0
+    ref: v1
   updateStrategy: resource-merge
 upstreamLock:
   type: git
   git:
     repo: git@github.com:droot/cert-manager-pkg-catalog
     directory: /cert-manager-basic
-    ref: cert-manager-basic/v0
-    commit: eb9325eae1c6a9b10874ab0e45e500be3436917e
+    ref: cert-manager-basic/v1
+    commit: 3925639d23257c8bbd09d25f173e2a1d0ac4b5f9
 info:
   description: sample description

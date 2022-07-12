@@ -1,7 +1,7 @@
 # Source: cert-manager/templates/cainjector-psp-clusterrole.yaml
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
-metadata:
+metadata: # kpt-merge: /cert-manager-cainjector-psp
   name: cert-manager-cainjector-psp
   labels:
     app: cainjector
@@ -14,7 +14,6 @@ metadata:
 rules:
 - apiGroups: ['policy']
   resources: ['podsecuritypolicies']
-  verbs:     ['use']
+  verbs: ['use']
   resourceNames:
   - cert-manager-cainjector
-
