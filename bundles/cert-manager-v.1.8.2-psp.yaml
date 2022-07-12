@@ -1,4 +1,151 @@
 ---
+# Source: cert-manager/templates/cainjector-psp.yaml
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: cert-manager-cainjector
+  labels:
+    app: cainjector
+    app.kubernetes.io/name: cainjector
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/component: "cainjector"
+    app.kubernetes.io/version: "v1.8.2"
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: cert-manager-v1.8.2
+  annotations:
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default'
+    seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
+    apparmor.security.beta.kubernetes.io/allowedProfileNames: 'runtime/default'
+    apparmor.security.beta.kubernetes.io/defaultProfileName:  'runtime/default'
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  allowedCapabilities: []  # default set of capabilities are implicitly allowed
+  volumes:
+  - 'configMap'
+  - 'emptyDir'
+  - 'projected'
+  - 'secret'
+  - 'downwardAPI'
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  runAsUser:
+    rule: 'MustRunAs'
+    ranges:
+    - min: 1000
+      max: 1000
+  seLinux:
+    rule: 'RunAsAny'
+  supplementalGroups:
+    rule: 'MustRunAs'
+    ranges:
+    - min: 1000
+      max: 1000
+  fsGroup:
+    rule: 'MustRunAs'
+    ranges:
+    - min: 1000
+      max: 1000
+---
+# Source: cert-manager/templates/psp.yaml
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: cert-manager
+  labels:
+    app: cert-manager
+    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/component: "controller"
+    app.kubernetes.io/version: "v1.8.2"
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: cert-manager-v1.8.2
+  annotations:
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default'
+    seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
+    apparmor.security.beta.kubernetes.io/allowedProfileNames: 'runtime/default'
+    apparmor.security.beta.kubernetes.io/defaultProfileName:  'runtime/default'
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  allowedCapabilities: []  # default set of capabilities are implicitly allowed
+  volumes:
+  - 'configMap'
+  - 'emptyDir'
+  - 'projected'
+  - 'secret'
+  - 'downwardAPI'
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  runAsUser:
+    rule: 'MustRunAs'
+    ranges:
+    - min: 1000
+      max: 1000
+  seLinux:
+    rule: 'RunAsAny'
+  supplementalGroups:
+    rule: 'MustRunAs'
+    ranges:
+    - min: 1000
+      max: 1000
+  fsGroup:
+    rule: 'MustRunAs'
+    ranges:
+    - min: 1000
+      max: 1000
+---
+# Source: cert-manager/templates/webhook-psp.yaml
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: cert-manager-webhook
+  labels:
+    app: webhook
+    app.kubernetes.io/name: webhook
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/component: "webhook"
+    app.kubernetes.io/version: "v1.8.2"
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: cert-manager-v1.8.2
+  annotations:
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default'
+    seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
+    apparmor.security.beta.kubernetes.io/allowedProfileNames: 'runtime/default'
+    apparmor.security.beta.kubernetes.io/defaultProfileName:  'runtime/default'
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  allowedCapabilities: []  # default set of capabilities are implicitly allowed
+  volumes:
+  - 'configMap'
+  - 'emptyDir'
+  - 'projected'
+  - 'secret'
+  - 'downwardAPI'
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  runAsUser:
+    rule: 'MustRunAs'
+    ranges:
+    - min: 1000
+      max: 1000
+  seLinux:
+    rule: 'RunAsAny'
+  supplementalGroups:
+    rule: 'MustRunAs'
+    ranges:
+    - min: 1000
+      max: 1000
+  fsGroup:
+    rule: 'MustRunAs'
+    ranges:
+    - min: 1000
+      max: 1000
+---
 # Source: cert-manager/templates/cainjector-serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
@@ -60,6 +207,26 @@ metadata:
     app.kubernetes.io/component: "webhook"
 data:
 ---
+# Source: cert-manager/templates/cainjector-psp-clusterrole.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: cert-manager-cainjector-psp
+  labels:
+    app: cainjector
+    app.kubernetes.io/name: cainjector
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/component: "cainjector"
+    app.kubernetes.io/version: "v1.8.2"
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: cert-manager-v1.8.2
+rules:
+- apiGroups: ['policy']
+  resources: ['podsecuritypolicies']
+  verbs:     ['use']
+  resourceNames:
+  - cert-manager-cainjector
+---
 # Source: cert-manager/templates/cainjector-rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -92,6 +259,26 @@ rules:
   - apiGroups: ["apiextensions.k8s.io"]
     resources: ["customresourcedefinitions"]
     verbs: ["get", "list", "watch", "update"]
+---
+# Source: cert-manager/templates/psp-clusterrole.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: cert-manager-psp
+  labels:
+    app: cert-manager
+    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/component: "controller"
+    app.kubernetes.io/version: "v1.8.2"
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: cert-manager-v1.8.2
+rules:
+- apiGroups: ['policy']
+  resources: ['podsecuritypolicies']
+  verbs:     ['use']
+  resourceNames:
+  - cert-manager
 ---
 # Source: cert-manager/templates/rbac.yaml
 # Issuer controller role
@@ -429,6 +616,26 @@ rules:
     resources: ["subjectaccessreviews"]
     verbs: ["create"]
 ---
+# Source: cert-manager/templates/webhook-psp-clusterrole.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: cert-manager-webhook-psp
+  labels:
+    app: webhook
+    app.kubernetes.io/name: webhook
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/component: "webhook"
+    app.kubernetes.io/version: "v1.8.2"
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: cert-manager-v1.8.2
+rules:
+- apiGroups: ['policy']
+  resources: ['podsecuritypolicies']
+  verbs:     ['use']
+  resourceNames:
+  - cert-manager-webhook
+---
 # Source: cert-manager/templates/webhook-rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -446,6 +653,28 @@ rules:
 - apiGroups: ["authorization.k8s.io"]
   resources: ["subjectaccessreviews"]
   verbs: ["create"]
+---
+# Source: cert-manager/templates/cainjector-psp-clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cert-manager-cainjector-psp
+  labels:
+    app: cainjector
+    app.kubernetes.io/name: cainjector
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/component: "cainjector"
+    app.kubernetes.io/version: "v1.8.2"
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: cert-manager-v1.8.2
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-manager-cainjector-psp
+subjects:
+  - kind: ServiceAccount
+    name: cert-manager-cainjector
+    namespace: cert-manager
 ---
 # Source: cert-manager/templates/cainjector-rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -469,6 +698,28 @@ subjects:
     namespace: "cert-manager"
     kind: ServiceAccount
 ---
+# Source: cert-manager/templates/psp-clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cert-manager-psp
+  labels:
+    app: cert-manager
+    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/component: "controller"
+    app.kubernetes.io/version: "v1.8.2"
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: cert-manager-v1.8.2
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-manager-psp
+subjects:
+  - kind: ServiceAccount
+    name: cert-manager
+    namespace: cert-manager
+---
 # Source: cert-manager/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -644,6 +895,28 @@ subjects:
   - name: cert-manager
     namespace: "cert-manager"
     kind: ServiceAccount
+---
+# Source: cert-manager/templates/webhook-psp-clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cert-manager-webhook-psp
+  labels:
+    app: webhook
+    app.kubernetes.io/name: webhook
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/component: "webhook"
+    app.kubernetes.io/version: "v1.8.2"
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: cert-manager-v1.8.2
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-manager-webhook-psp
+subjects:
+  - kind: ServiceAccount
+    name: cert-manager-webhook
+    namespace: cert-manager
 ---
 # Source: cert-manager/templates/webhook-rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
