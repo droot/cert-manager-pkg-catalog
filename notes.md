@@ -33,8 +33,17 @@ Steps followed to generate kpt package for one of the variants `cert-manager-bas
 mkdir cert-manager-basic
 
 kpt pkg init cert-manager-basic
+
+kubectl-slice -f cert-manager-v.1.8.2-basic.yaml --template '{{ index "app" .metadata.labels }}/{{.kind | lower}}-{{.metadata.name|dottodash}}.yaml' -o cert-manager-basic --dry-run
+
 kubectl-slice -f bundles/cert-manager-v.1.8.2-basic.yaml --template '{{.kind|lower}}/{{.metadata.name|dottodash}}.yaml' -o cert-manager-basic
 ...
 39 files generated.
+
+# Had to get the CRDs separately. --include-crds option was not generating CRDs.
+wget https://github.com/cert-manager/cert-manager/releases/download/v1.8.2/cert-manager.crds.yaml
+
+kubectl-slice -f cert-manager.crds.yaml --template 'crds/{{.metadata.name|dottodash}}.yaml' -o cert-manager-basic
+
 ```
 
